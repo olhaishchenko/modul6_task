@@ -51,3 +51,47 @@
 скрипт игнорирует папки archives, video, audio, documents, images;
 распакованное содержимое архива переносится в папку archives в подпапку, названную точно так же, как и архив, но без расширения в конце;
 файлы, расширения которых неизвестны, остаются без изменений.
+
+from locale import normalize
+from os import remove
+from pathlib import Path
+from shutil import move
+
+
+
+def ordnung(begin):
+    # як окремо створити папки щоб при рекурсії не повторюватися?
+    p = Path(begin)
+    Path(begin+'/images').mkdir()  
+    Path(begin+'/documents').mkdir()
+    Path(begin+'/audio').mkdir()
+    Path(begin+'/video').mkdir()
+    Path(begin+'/archives').mkdir()
+    Path(begin+'/other').mkdir()
+
+    for i in p.iterdir():
+        if i.is_file():
+            normalize(i)
+            if i.suffix in ('jpeg', 'png', 'jpg', 'svg'): 
+                move(i.parent+i,begin+'/images')
+                remove(i)
+            if i.suffix in ('doc', 'docx', 'txt', 'pdf', 'xlsx', 'pptx'):
+                move(i.parent+i,begin+'/documents')
+                remove(i)
+            if i.suffix in ('mp3', 'ogg', 'wav', 'amr'):
+                move(i.parent+i,begin+'/audio')
+                remove(i)
+            if i.suffix in ('avi', 'mp4', 'mov', 'mkv'):
+                move(i.parent+i,begin+'/video')
+                remove(i)
+            if i.suffix in ('zip', 'gz', 'tar'):
+                move(i.parent+i,begin+'/archives')
+                remove(i)
+            else:
+                move(i.parent+i,begin+'/other')
+                remove(i)
+        elif i in ('images' ,'documents','audio','archives','other'):
+            break
+        else: 
+            # перевірити на пустоту і видалити????
+            ordnung(i)
