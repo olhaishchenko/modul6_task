@@ -1,10 +1,10 @@
-from genericpath import exists
-from locale import normalize
-from os import remove
+import os
 from pathlib import Path
 from shutil import move
-begin = "/Users/olha/Downloads"
-p = Path(begin)
+
+begin = os.getcwd()
+print(begin)
+
 if not Path(begin+'/images').exists():
     Path(begin+'/images').mkdir()
 if not Path(begin+'/documents').exists():
@@ -19,7 +19,8 @@ if not Path(begin+'/other').exists():
     Path(begin+'/other').mkdir()
 
 
-def sort(begin):
+def sort(begin,now_folder):
+    p=Path(now_folder)
     for i in p.iterdir():
         if i.is_file():
           
@@ -40,10 +41,6 @@ def sort(begin):
 
             else:
                 move(i,begin+'/other/'+i.name)
-  
-        # elif i in ('images' ,'documents','audio','archives','other'):
-        #     break
-        # else: 
-        #     # перевірити на пустоту і видалити????
-        #     ordnung(i)
-sort(begin)
+        if not i.is_file():
+            if i.name not in ('images' ,'documents','audio','archives','other'):
+                sort(begin,i)
