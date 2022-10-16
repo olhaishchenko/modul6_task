@@ -16,8 +16,6 @@ def ordnung(begin):
     for i in p.iterdir():
         if i.is_file():
             if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
-                # print(i) 
-                # print(i.name)
                 move(i,Path(begin+'/images/'+i.name))
                 # print(Path(begin+'/images/'+i.name))
 
