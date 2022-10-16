@@ -13,16 +13,14 @@ p = Path(begin)
 
 
 def ordnung(begin):
-    # як окремо створити папки щоб при рекурсії не повторюватися?
     for i in p.iterdir():
         if i.is_file():
-            # normalize(i)
             if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
                 # print(i) 
                 # print(i.name)
                 move(i,Path(begin+'/images/'+i.name))
                 # print(Path(begin+'/images/'+i.name))
-                
+
             if i.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx'):
                 move(i,Path(begin+'/documents/'+i.name))
 
