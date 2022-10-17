@@ -35,9 +35,9 @@ def normalize_name_file(file_name):
     f=l.split('.')
     k=f[0]
     normal_name=normalize_name(k)+'.'+f[-1]
-    (Path(os.getcwd()+'/'+normal_name))
-    copyfile(file_name, Path(os.getcwd()+'/'+normal_name))
-    return (Path(os.getcwd()+'/'+normal_name))
+    new_direct= os.path.split(Path(file_name))[0]+'/'+normal_name
+    move(file_name, new_direct)
+    return new_direct
 
 def sort(now_folder):
     p=Path(now_folder)
