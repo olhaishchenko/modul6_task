@@ -2,6 +2,7 @@
 import os
 import sys
 from pathlib import Path
+import re
 from shutil import move, unpack_archive
 
 START_FOLDER = sys.argv[1] if len(sys.argv)>1 else "/Users/olha/Downloads/Test"
@@ -23,6 +24,35 @@ Path(VIDEO_PATH).mkdir(exist_ok=True)
 Path(ARCHIVES_PATH).mkdir(exist_ok=True)
 Path(OTHER_PATH).mkdir(exist_ok=True)
 
+CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
+TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
+               "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
+
+TRANS = {}
+for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
+    TRANS[ord(c)] = l
+    TRANS[ord(c.upper())] = l.upper()
+
+
+def normalize_name(name):
+    new_name =''
+
+    for char in name:
+        if re.search(r'[0-9A-z]',char):
+            char = char
+        elif re.search(r'[А-Яа-яёєіїґ]',char):
+            char = TRANS[ord(char)]
+        else:
+            char = '_'
+
+        new_name += char
+    return new_name
+
+def normalize_name_file(file_name):
+    l = Path(file_name).stem
+    k = Path(file_name).parent
+    normal_name=normalize_name(l)+Path(file_name).suffix
+    return normal_name
 
 def normalize_file(i):
     # TODO
