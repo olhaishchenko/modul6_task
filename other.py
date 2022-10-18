@@ -1,14 +1,13 @@
-from copy import copy
 import os
 import re
 import sys
 from pathlib import Path
-from shutil import copyfile, move
+from shutil import move
 
 START_FOLDER = sys.argv[1] if len(sys.argv)>1 else "/Users/olha/Downloads/Test"
 
-CYRILLIC_SYMBOLS = "äабвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
-TRANSLATION = ("a","a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
+CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
+TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
                "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "ya", "je", "i", "ji", "g")
 
 TRANS = {}
@@ -43,9 +42,9 @@ def sort(now_folder):
     p=Path(now_folder)
 
     for i in p.iterdir():
-        if i.is_dir():
-            if i.name not in ('images' ,'documents','audio','video','archives','other'):
-                sort(i)
+        # if i.is_dir():
+        #     if i.name not in ('images' ,'documents','audio','video','archives','other'):
+        #         sort(i)
 
         if i.is_file():
             i = normalize_name_file(i)
