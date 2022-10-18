@@ -2,7 +2,7 @@
 import os
 import sys
 from pathlib import Path
-from shutil import move
+from shutil import move, unpack_archive
 
 START_FOLDER = sys.argv[1] if len(sys.argv)>1 else "/Users/olha/Downloads/Test"
 print(START_FOLDER)
@@ -11,19 +11,17 @@ print(START_FOLDER)
 
 IMAGE_PATH = START_FOLDER+'/images'
 DOCUMENT_PATH = START_FOLDER+'/documents'
+AUDIO_PATH = START_FOLDER+'/audio'
+VIDEO_PATH = START_FOLDER+'/video'
+ARCHIVES_PATH = START_FOLDER+'/archives'
+OTHER_PATH = START_FOLDER+'/other'
 
-if not Path(IMAGE_PATH).exists():
-    Path(IMAGE_PATH).mkdir()
-if not Path(DOCUMENT_PATH).exists():
-    Path(DOCUMENT_PATH).mkdir()
-if not Path(START_FOLDER+'/audio').exists():
-    Path(START_FOLDER+'/audio').mkdir()
-if not Path(START_FOLDER+'/video').exists():
-    Path(START_FOLDER+'/video').mkdir()
-if not Path(START_FOLDER+'/archives').exists():
-    Path(START_FOLDER+'/archives').mkdir()
-if not Path(START_FOLDER+'/other').exists():
-    Path(START_FOLDER+'/other').mkdir()
+Path(IMAGE_PATH).mkdir(exist_ok=True)
+Path(DOCUMENT_PATH).mkdir(exist_ok=True)
+Path(AUDIO_PATH).mkdir(exist_ok=True)
+Path(VIDEO_PATH).mkdir(exist_ok=True)
+Path(ARCHIVES_PATH).mkdir(exist_ok=True)
+Path(OTHER_PATH).mkdir(exist_ok=True)
 
 
 def normalize_file(i):
@@ -42,22 +40,24 @@ def sort(now_folder):
             normalize_file(i)
 
             if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
-                move(i,Path(IMAGE_PATH+'/'+i.name))
+                move(i,Path(IMAGE_PATH + '/' + i.name))
 
             elif i.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx'):
-                move(i,Path(DOCUMENT_PATH+'/'+i.name))
+                move(i,Path(DOCUMENT_PATH + '/' + i.name))
 
             elif i.suffix.lower() in ('.mp3', '.ogg', '.wav', '.amr'):
-                move(i,Path(START_FOLDER+'/audio/'+i.name))
+                move(i, Path(AUDIO_PATH + '/' + i.name))
 
             elif i.suffix.lower() in ('.avi', '.mp4', '.mov', '.mkv'):
-                move(i,START_FOLDER+'/video/'+i.name)
+                move(i, VIDEO_PATH + '/' + i.name)
     
             elif i.suffix.lower() in ('.zip', '.gz', '.tar'):
-                move(i,START_FOLDER+'/archives/'+i.name)
+                Path(ARCHIVES_PATH + '/' + i.stem).mkdir()
+                unpack_archive(i, ARCHIVES_PATH + '/' + i.stem)
+                os.remove(i)
 
             else:
-                move(i,START_FOLDER+'/other/'+i.name)
+                move(i,OTHER_PATH + '/' + i.name)
         
         if i.is_dir():
             if i.name not in ('images' ,'documents','audio','video','archives','other'):

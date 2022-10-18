@@ -18,6 +18,7 @@ for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
 
 def normalize_name(name):
     new_name =''
+
     for char in name:
         if re.search(r'[0-9A-z]',char):
             char = char
@@ -30,11 +31,11 @@ def normalize_name(name):
     return new_name
 
 def normalize_name_file(file_name):
-    l=Path(file_name).name
-    f=l.split('.')
-    k=f[0]
-    normal_name=normalize_name(k)+'.'+f[-1]
-    new_direct= os.path.split(Path(file_name))[0]+'/'+normal_name
+    l = Path(file_name).stem
+    k = Path(file_name).parent
+    normal_name=normalize_name(l)+Path(file_name).suffix
+    new_direct= k + '/' + normal_name
+    # new_direct= os.path.split(Path(file_name))[0]+'/'+normal_name
     move(file_name, new_direct)
     return new_direct
 
