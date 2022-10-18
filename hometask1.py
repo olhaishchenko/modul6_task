@@ -54,10 +54,6 @@ def normalize_name_file(file_name):
     normal_name=normalize_name(l)+Path(file_name).suffix
     return normal_name
 
-def normalize_file(i):
-    # TODO
-    pass
-
 def sort(now_folder):
     p=Path(now_folder)
 
@@ -67,10 +63,9 @@ def sort(now_folder):
                 sort(i)
 
         if i.is_file():
-            normalize_file(i)
 
             if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
-                move(i,Path(IMAGE_PATH + '/' + i.name))
+                move(i,Path(IMAGE_PATH + '/' + normalize_name_file(i)))
 
             elif i.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx'):
                 move(i,Path(DOCUMENT_PATH + '/' + i.name))
