@@ -36,7 +36,6 @@ for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
 
 def normalize_name(name):
     new_name =''
-
     for char in name:
         if re.search(r'[0-9A-z]',char):
             char = char
@@ -44,15 +43,8 @@ def normalize_name(name):
             char = TRANS[ord(char)]
         else:
             char = '_'
-
         new_name += char
     return new_name
-
-def normalize_name_file(file_name):
-    l = Path(file_name).stem
-    k = Path(file_name).parent
-    normal_name=normalize_name(l)+Path(file_name).suffix
-    return normal_name
 
 def sort(now_folder):
     p=Path(now_folder)
@@ -65,24 +57,23 @@ def sort(now_folder):
         if i.is_file():
 
             if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
-                move(i,Path(IMAGE_PATH + '/' + normalize_name_file(i)))
+                move(i, IMAGE_PATH + '/' + normalize_name(i.stem)+i.suffix)
 
             elif i.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx'):
-                move(i,Path(DOCUMENT_PATH + '/' + i.name))
+                move(i, DOCUMENT_PATH + '/' + normalize_name(i.stem)+i.suffix)
 
             elif i.suffix.lower() in ('.mp3', '.ogg', '.wav', '.amr'):
-                move(i, Path(AUDIO_PATH + '/' + i.name))
+                move(i, AUDIO_PATH + '/' + normalize_name(i.stem)+i.suffix)
 
             elif i.suffix.lower() in ('.avi', '.mp4', '.mov', '.mkv'):
-                move(i, VIDEO_PATH + '/' + i.name)
+                move(i, VIDEO_PATH + '/' + normalize_name(i.stem)+i.suffix)
     
-            elif i.suffix.lower() in ('.zip', '.gz', '.tar'):
-                Path(ARCHIVES_PATH + '/' + i.stem).mkdir()
-                unpack_archive(i, ARCHIVES_PATH + '/' + i.stem)
+            elif i.suffix.lower() in ('.zip', '.gz', '.tar'):               
+                unpack_archive(i, ARCHIVES_PATH + '/' + normalize_name(i.stem))
                 os.remove(i)
 
             else:
-                move(i,OTHER_PATH + '/' + i.name)
+                move(i,OTHER_PATH + '/' + normalize_name(i.stem)+i.suffix)
         
         if i.is_dir():
             if i.name not in ('images' ,'documents','audio','video','archives','other'):
