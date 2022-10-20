@@ -5,10 +5,14 @@ from pathlib import Path
 import re
 from shutil import move, unpack_archive
 
-START_FOLDER = sys.argv[1] if len(sys.argv)>1 else "/Users/olha/Downloads/Test"
+START_FOLDER = sys.argv[1] if len(sys.argv)>1 else "/Users"
 print(START_FOLDER)
 
-# check START_FOLDER exist and a folder
+if Path(START_FOLDER).exists:
+    pass
+else:
+    print('Folder not exists')
+    exit(1)
 
 IMAGE_PATH = START_FOLDER+'/images'
 DOCUMENT_PATH = START_FOLDER+'/documents'
@@ -51,11 +55,7 @@ audio_list = []
 video_list = []
 archives_list = []
 other_list = []
-image_suffixes_list = set()
-document_suffixes_list = set()
-audio_suffixes_list = set()
-video_suffixes_list = set()
-archives_suffixes_list = set()
+suffixes_list = set()
 other_suffixes_list = set()
 
 def sort(now_folder):
@@ -70,27 +70,27 @@ def sort(now_folder):
 
             if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
                 image_list.append(normalize_name(i.stem)+i.suffix)
-                image_suffixes_list.add(i.suffix)
+                suffixes_list.add(i.suffix)
                 move(i, IMAGE_PATH + '/' + normalize_name(i.stem)+i.suffix)
 
             elif i.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx', '.ppt'):
                 document_list.append(normalize_name(i.stem)+i.suffix)
-                document_suffixes_list.add(i.suffix)
+                suffixes_list.add(i.suffix)
                 move(i, DOCUMENT_PATH + '/' + normalize_name(i.stem)+i.suffix)
 
             elif i.suffix.lower() in ('.mp3', '.ogg', '.wav', '.amr'):                
                 audio_list.append(normalize_name(i.stem)+i.suffix)
-                audio_suffixes_list.add(i.suffix)
+                suffixes_list.add(i.suffix)
                 move(i, AUDIO_PATH + '/' + normalize_name(i.stem)+i.suffix)
 
             elif i.suffix.lower() in ('.avi', '.mp4', '.mov', '.mkv'):
                 video_list.append(normalize_name(i.stem)+i.suffix)
-                video_suffixes_list.add(i.suffix)
+                suffixes_list.add(i.suffix)
                 move(i, VIDEO_PATH + '/' + normalize_name(i.stem)+i.suffix)
     
             elif i.suffix.lower() in ('.zip', '.gz', '.tar'):
                 archives_list.append(normalize_name(i.stem)+i.suffix) 
-                archives_suffixes_list.add(i.suffix)              
+                suffixes_list.add(i.suffix)              
                 unpack_archive(i, ARCHIVES_PATH + '/' + normalize_name(i.stem))
                 os.remove(i)
 
@@ -102,14 +102,16 @@ def sort(now_folder):
         if i.is_dir():
             if i.name not in ('images' ,'documents','audio','video','archives','other'):
                 Path(i).rmdir()
-    return(image_list, image_suffixes_list,document_list,document_suffixes_list,audio_list,audio_suffixes_list,video_list,video_suffixes_list,archives_list,archives_suffixes_list,other_list,other_suffixes_list)
-
-print(f'''image_list={image_list}\nimage_suffixes_list={image_suffixes_list}\n
-            document_list={document_list}\ndocument_suffixes_list={document_suffixes_list}\n
-            audio_list={audio_list}\naudio_suffixes_list={audio_suffixes_list}\n
-            video_list={video_list}\nvideo_suffixes_list={video_suffixes_list}\n
-            archives_list={archives_list}\narchives_suffixes_list={archives_suffixes_list}\n
-            other_list={other_list}\nother_suffixes_list={other_suffixes_list}\n''')
 
 if __name__ == "__main__":
     sort(START_FOLDER)
+
+print(f'''\n
+            image_list={image_list}\n
+            document_list={document_list}\n
+            audio_list={audio_list}\n
+            video_list={video_list}\n
+            archives_list={archives_list}\n
+            other_list={other_list}\n
+            suffixes_list={suffixes_list}\n
+            other_suffixes_list={other_suffixes_list}\n''')
