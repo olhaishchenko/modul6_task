@@ -10,11 +10,11 @@ if len(sys.argv) > 1:
     START_FOLDER = sys.argv[1]
 else:
     print("No arguments passed")
-    exit(21)
+    exit(22)
 
 if not Path(START_FOLDER).exists:
     print('Folder not exists')
-    exit(1)
+    exit(20)
 
 IMAGE_PATH = os.path.join(START_FOLDER, 'images')
 DOCUMENT_PATH = os.path.join(START_FOLDER, 'documents')
