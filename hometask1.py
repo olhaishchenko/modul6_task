@@ -5,21 +5,23 @@ from pathlib import Path
 import re
 from shutil import move, unpack_archive
 
-START_FOLDER = sys.argv[1] if len(sys.argv)>1 else "/Users"
-print(START_FOLDER)
-
-if Path(START_FOLDER).exists:
-    pass
+START_FOLDER = ""
+if len(sys.argv) > 1:
+    START_FOLDER = sys.argv[1]
 else:
+    print("No arguments passed")
+    exit(21)
+
+if not Path(START_FOLDER).exists:
     print('Folder not exists')
     exit(1)
 
-IMAGE_PATH = START_FOLDER+'/images'
-DOCUMENT_PATH = START_FOLDER+'/documents'
-AUDIO_PATH = START_FOLDER+'/audio'
-VIDEO_PATH = START_FOLDER+'/video'
-ARCHIVES_PATH = START_FOLDER+'/archives'
-OTHER_PATH = START_FOLDER+'/other'
+IMAGE_PATH = os.path.join(START_FOLDER, 'images')
+DOCUMENT_PATH = os.path.join(START_FOLDER, 'documents')
+AUDIO_PATH = os.path.join(START_FOLDER, 'audio')
+VIDEO_PATH = os.path.join(START_FOLDER, 'video')
+ARCHIVES_PATH = os.path.join(START_FOLDER, 'archives')
+OTHER_PATH = os.path.join(START_FOLDER, 'other')
 
 Path(IMAGE_PATH).mkdir(exist_ok=True)
 Path(DOCUMENT_PATH).mkdir(exist_ok=True)
@@ -37,18 +39,6 @@ for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
     TRANS[ord(c)] = l
     TRANS[ord(c.upper())] = l.upper()
 
-
-def normalize_name(name):
-    new_name =''
-    for char in name:
-        if re.search(r'[0-9A-z]',char):
-            char = char
-        elif re.search(r'[А-Яа-яёєіїґ]',char):
-            char = TRANS[ord(char)]
-        else:
-            char = '_'
-        new_name += char
-    return new_name
 image_list = []
 document_list = []
 audio_list = []
@@ -58,55 +48,68 @@ other_list = []
 suffixes_list = set()
 other_suffixes_list = set()
 
+
+def normalize_name(name):
+    new_name = ''
+    for char in name:
+        if re.search(r'[0-9A-z]', char):
+            char = char
+        elif re.search(r'[А-Яа-яёєіїґ]', char):
+            char = TRANS[ord(char)]
+        else:
+            char = '_'
+        new_name += char
+    return new_name
+
+
 def sort(now_folder):
-    p=Path(now_folder)
+    for item in Path(now_folder).iterdir():
+        if item.is_dir():
+            if item.name not in ('images', 'documents', 'audio', 'video', 'archives', 'other'):
+                sort(item)
 
-    for i in p.iterdir():
-        if i.is_dir():
-            if i.name not in ('images' ,'documents','audio','video','archives','other'):
-                sort(i)
+        if item.is_file():
+            normalized_file_name = normalize_name(item.stem) + item.suffix
+            if item.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
+                image_list.append(normalized_file_name)
+                suffixes_list.add(item.suffix)
+                move(item, os.path.join(IMAGE_PATH, normalized_file_name))
 
-        if i.is_file():
+            elif item.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx', '.ppt'):
+                document_list.append(normalized_file_name)
+                suffixes_list.add(item.suffix)
+                move(item, os.path.join(DOCUMENT_PATH, normalized_file_name))
 
-            if i.suffix.lower() in ('.jpeg', '.png', '.jpg', '.svg'):
-                image_list.append(normalize_name(i.stem)+i.suffix)
-                suffixes_list.add(i.suffix)
-                move(i, IMAGE_PATH + '/' + normalize_name(i.stem)+i.suffix)
+            elif item.suffix.lower() in ('.mp3', '.ogg', '.wav', '.amr'):
+                audio_list.append(normalized_file_name)
+                suffixes_list.add(item.suffix)
+                move(item, os.path.join(AUDIO_PATH, normalized_file_name))
 
-            elif i.suffix.lower() in ('.doc', '.docx', '.txt', '.pdf', '.xlsx', '.pptx', '.ppt'):
-                document_list.append(normalize_name(i.stem)+i.suffix)
-                suffixes_list.add(i.suffix)
-                move(i, DOCUMENT_PATH + '/' + normalize_name(i.stem)+i.suffix)
+            elif item.suffix.lower() in ('.avi', '.mp4', '.mov', '.mkv'):
+                video_list.append(normalized_file_name)
+                suffixes_list.add(item.suffix)
+                move(item, os.path.join(VIDEO_PATH, normalized_file_name))
 
-            elif i.suffix.lower() in ('.mp3', '.ogg', '.wav', '.amr'):                
-                audio_list.append(normalize_name(i.stem)+i.suffix)
-                suffixes_list.add(i.suffix)
-                move(i, AUDIO_PATH + '/' + normalize_name(i.stem)+i.suffix)
-
-            elif i.suffix.lower() in ('.avi', '.mp4', '.mov', '.mkv'):
-                video_list.append(normalize_name(i.stem)+i.suffix)
-                suffixes_list.add(i.suffix)
-                move(i, VIDEO_PATH + '/' + normalize_name(i.stem)+i.suffix)
-    
-            elif i.suffix.lower() in ('.zip', '.gz', '.tar'):
-                archives_list.append(normalize_name(i.stem)+i.suffix) 
-                suffixes_list.add(i.suffix)              
-                unpack_archive(i, ARCHIVES_PATH + '/' + normalize_name(i.stem))
-                os.remove(i)
+            elif item.suffix.lower() in ('.zip', '.gz', '.tar'):
+                archives_list.append(normalized_file_name)
+                suffixes_list.add(item.suffix)
+                unpack_archive(item, os.path.join(ARCHIVES_PATH, normalize_name(item.stem)))
+                os.remove(item)
 
             else:
-                other_list.append(i.name)
-                other_suffixes_list.add(i.suffix)
-                move(i,OTHER_PATH + '/' + i.name)
-        
-        if i.is_dir():
-            if i.name not in ('images' ,'documents','audio','video','archives','other'):
-                Path(i).rmdir()
+                other_list.append(item.name)
+                other_suffixes_list.add(item.suffix)
+                move(item, os.path.join(OTHER_PATH, item.name))
+
+        if item.is_dir():
+            if item.name not in ('images', 'documents', 'audio', 'video', 'archives', 'other'):
+                Path(item).rmdir()
+
 
 if __name__ == "__main__":
     sort(START_FOLDER)
 
-print(f'''\n
+    print(f'''\n
             image_list={image_list}\n
             document_list={document_list}\n
             audio_list={audio_list}\n
